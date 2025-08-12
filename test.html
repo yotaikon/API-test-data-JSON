@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .user-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .user-card h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 API测试页面</h1>
+    
+    <div class="container">
+        <h2>📊 获取所有用户</h2>
+        <button onclick="getAllUsers()">获取用户列表</button>
+        <div id="usersList"></div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 获取单个用户</h2>
+        <div class="form-group">
+            <label>用户ID:</label>
+            <input type="text" id="userId" placeholder="输入用户ID" value="6ba7b810-9dad-11d1-80b4-00c04fd430c8">
+            <button onclick="getUser()">获取用户</button>
+        </div>
+        <div id="singleUser"></div>
+    </div>
+
+    <div class="container">
+        <h2>➕ 创建新用户</h2>
+        <div class="form-group">
+            <label>姓名:</label>
+            <input type="text" id="newName" placeholder="输入姓名">
+        </div>
+        <div class="form-group">
+            <label>年龄:</label>
+            <input type="number" id="newAge" placeholder="18-65" min="18" max="65">
+        </div>
+        <div class="form-group">
+            <label>邮箱:</label>
+            <input type="email" id="newEmail" placeholder="输入邮箱">
+        </div>
+        <div class="form-group">
+            <label>角色:</label>
+            <select id="newRole">
+                <option value="admin">管理员</option>
+                <option value="editor">编辑者</option>
+                <option value="viewer">查看者</option>
+            </select>
+        </div>
+        <button onclick="createUser()">创建用户</button>
+        <div id="createResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>✏️ 更新用户</h2>
+        <div class="form-group">
+            <label>用户ID:</label>
+            <input type="text" id="updateUserId" placeholder="输入用户ID" value="6ba7b810-9dad-11d1-80b4-00c04fd430c8">
+        </div>
+        <div class="form-group">
+            <label>姓名:</label>
+            <input type="text" id="updateName" placeholder="输入新姓名">
+        </div>
+        <div class="form-group">
+            <label>年龄:</label>
+            <input type="number" id="updateAge" placeholder="18-65" min="18" max="65">
+        </div>
+        <div class="form-group">
+            <label>邮箱:</label>
+            <input type="email" id="updateEmail" placeholder="输入新邮箱">
+        </div>
+        <div class="form-group">
+            <label>角色:</label>
+            <select id="updateRole">
+                <option value="">保持不变</option>
+                <option value="admin">管理员</option>
+                <option value="editor">编辑者</option>
+                <option value="viewer">查看者</option>
+            </select>
+        </div>
+        <button onclick="updateUser()">更新用户</button>
+        <div id="updateResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>🗑️ 删除用户</h2>
+        <div class="form-group">
+            <label>用户ID:</label>
+            <input type="text" id="deleteUserId" placeholder="输入用户ID">
+            <button onclick="deleteUser()">删除用户</button>
+        </div>
+        <div id="deleteResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 按角色筛选</h2>
+        <select id="filterRole" onchange="filterByRole()">
+            <option value="">选择角色</option>
+            <option value="admin">管理员</option>
+            <option value="editor">编辑者</option>
+            <option value="viewer">查看者</option>
+        </select>
+        <div id="filteredUsers"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        async function getAllUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const usersHtml = result.data.map(user => `
+                        <div class="user-card">
+                            <h3>${user.name}</h3>
+                            <p><strong>ID:</strong> ${user.id}</p>
+                            <p><strong>年龄:</strong> ${user.age}</p>
+                            <p><strong>邮箱:</strong> ${user.email}</p>
+                            <p><strong>角色:</strong> ${user.role}</p>
+                        </div>
+                    `).join('');
+                    document.getElementById('usersList').innerHTML = usersHtml;
+                } else {
+                    document.getElementById('usersList').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        async function getUser() {
+            const userId = document.getElementById('userId').value;
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/${userId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const user = result.data;
+                    document.getElementById('singleUser').innerHTML = `
+                        <div class="user-card">
+                            <h3>${user.name}</h3>
+                            <p><strong>ID:</strong> ${user.id}</p>
+                            <p><strong>年龄:</strong> ${user.age}</p>
+                            <p><strong>邮箱:</strong> ${user.email}</p>
+                            <p><strong>角色:</strong> ${user.role}</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('singleUser').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('singleUser').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        async function createUser() {
+            const name = document.getElementById('newName').value;
+            const age = parseInt(document.getElementById('newAge').value);
+            const email = document.getElementById('newEmail').value;
+            const role = document.getElementById('newRole').value;
+
+            if (!name || !age || !email || !role) {
+                alert('请填写所有字段');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify({ name, age, email, role })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('createResult').innerHTML = `<p class="success">${result.message}</p>`;
+                    // 清空表单
+                    document.getElementById('newName').value = '';
+                    document.getElementById('newAge').value = '';
+                    document.getElementById('newEmail').value = '';
+                    document.getElementById('newRole').value = 'admin';
+                } else {
+                    document.getElementById('createResult').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('createResult').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        async function updateUser() {
+            const userId = document.getElementById('updateUserId').value;
+            const name = document.getElementById('updateName').value;
+            const age = document.getElementById('updateAge').value;
+            const email = document.getElementById('updateEmail').value;
+            const role = document.getElementById('updateRole').value;
+
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            const updateData = {};
+            if (name) updateData.name = name;
+            if (age) updateData.age = parseInt(age);
+            if (email) updateData.email = email;
+            if (role) updateData.role = role;
+
+            if (Object.keys(updateData).length === 0) {
+                alert('请至少填写一个要更新的字段');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('updateResult').innerHTML = `<p class="success">${result.message}</p>`;
+                    // 清空表单
+                    document.getElementById('updateName').value = '';
+                    document.getElementById('updateAge').value = '';
+                    document.getElementById('updateEmail').value = '';
+                    document.getElementById('updateRole').value = '';
+                } else {
+                    document.getElementById('updateResult').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('updateResult').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            if (!confirm('确定要删除这个用户吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('deleteResult').innerHTML = `<p class="success">${result.message}</p>`;
+                    document.getElementById('deleteUserId').value = '';
+                } else {
+                    document.getElementById('deleteResult').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('deleteResult').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        async function filterByRole() {
+            const role = document.getElementById('filterRole').value;
+            if (!role) {
+                document.getElementById('filteredUsers').innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/role/${role}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const usersHtml = result.data.map(user => `
+                        <div class="user-card">
+                            <h3>${user.name}</h3>
+                            <p><strong>ID:</strong> ${user.id}</p>
+                            <p><strong>年龄:</strong> ${user.age}</p>
+                            <p><strong>邮箱:</strong> ${user.email}</p>
+                            <p><strong>角色:</strong> ${user.role}</p>
+                        </div>
+                    `).join('');
+                    document.getElementById('filteredUsers').innerHTML = usersHtml;
+                } else {
+                    document.getElementById('filteredUsers').innerHTML = `<p class="error">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('filteredUsers').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+            }
+        }
+
+        // 页面加载时自动获取用户列表
+        window.onload = function() {
+            getAllUsers();
+        };
+    </script>
+</body>
+</html>

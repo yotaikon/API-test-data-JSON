@@ -1,0 +1,37 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "张三",
+    "age": 32,
+    "email": "zhangsan@example.com",
+    "role": "admin"
+  },
+  {
+    "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "name": "李四",
+    "age": 28,
+    "email": "lisi@example.com",
+    "role": "editor"
+  },
+  {
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "name": "王五",
+    "age": 45,
+    "email": "wangwu@example.com",
+    "role": "viewer"
+  },
+  {
+    "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+    "name": "赵六",
+    "age": 24,
+    "email": "zhaoliu@example.com",
+    "role": "editor"
+  },
+  {
+    "id": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
+    "name": "孙七",
+    "age": 38,
+    "email": "sunqi@example.com",
+    "role": "admin"
+  }
+]
