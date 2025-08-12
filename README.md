@@ -2,6 +2,21 @@
 
 这是一个用于测试API接口的Node.js服务器，提供了完整的用户管理CRUD操作。
 
+## 提示词
+
+```bash
+我需要为我的API生成5条测试数据。
+请以JSON数组的格式提供，每个对象必须包含：id，name，age，email，role
+规则：
+id 字段：UUID 字符串
+name 字段：常见英文名
+email 字段：格式正确的邮箱
+age 字段：18-65之间的整数
+role 字段 : "admin", "editor", "viewer"枚举值
+
+请给我一个API接口，进行测试
+```
+
 ## 功能特性
 
 - ✅ 获取所有用户列表
